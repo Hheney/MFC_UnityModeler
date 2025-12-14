@@ -4,7 +4,7 @@
 
 MyScreen::MyScreen(void)
 {
-	SetBackColor(RGB(255, 255, 255));
+	SetBackColor(RGB(128, 128, 128));
 }
 
 void MyScreen::AddGameObject(const OglTransform& ot)

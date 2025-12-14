@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "OglScreen.h"
 #include <GL/GLU.h>
 
@@ -13,18 +13,18 @@ OglScreen::OglScreen(void)
 
 void OglScreen::SetTexImage2D(const CString& imageFile)
 {
-	// ºñÆ®¸Ê ÀĞ±â -> ÅØ¼¿·Î »ç¿ë
+	// ë¹„íŠ¸ë§µ ì½ê¸° -> í…ì…€ë¡œ ì‚¬ìš©
 	int wid, ht, chan; // bmp, jpg -> 3(RGB); png, gif -> 4(RGBA)
-	// CStringA: ASCII¸¦ À§ÇÑ CString
-	unsigned char* data = stbi_load(CStringA(imageFile), &wid, &ht, &chan, 0); // ºñÆ®¸Ê ÇüÅÂÀÇ ¸Ş¸ğ¸® ÇÒ´ç; ./res/logo.jpg ÀÇ¹Ì: ÇöÀç Æú´õ(.) ¾Æ·¡¿¡ ÀÖ´Â Æú´õ res¿¡ ÀÖ´Â logo.jpg
+	// CStringA: ASCIIë¥¼ ìœ„í•œ CString
+	unsigned char* data = stbi_load(CStringA(imageFile), &wid, &ht, &chan, 0); // ë¹„íŠ¸ë§µ í˜•íƒœì˜ ë©”ëª¨ë¦¬ í• ë‹¹; ./res/logo.jpg ì˜ë¯¸: í˜„ì¬ í´ë”(.) ì•„ë˜ì— ìˆëŠ” í´ë” resì— ìˆëŠ” logo.jpg
 	if (chan == 3) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wid, ht, 0, GL_RGB, GL_UNSIGNED_BYTE, data); // bmp, jpg
 	else if (chan == 4) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, wid, ht, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); // png, gif
-	stbi_image_free(data); // ¸Ş¸ğ¸® ÇØÁ¦
+	stbi_image_free(data); // ë©”ëª¨ë¦¬ í•´ì œ
 }
 
 void OglScreen::colorrefToRgb(GLfloat& r, GLfloat& g, GLfloat& b, COLORREF color)
 {
-	// OpenGL »ö±ò ¹üÀ§: 0~1, COLORREF »ö±ò ¹üÀ§: 0~255
+	// OpenGL ìƒ‰ê¹” ë²”ìœ„: 0~1, COLORREF ìƒ‰ê¹” ë²”ìœ„: 0~255
 	r = GetRValue(color) / GLfloat(255);
 	g = GetGValue(color) / GLfloat(255);
 	b = GetBValue(color) / GLfloat(255);
@@ -32,15 +32,15 @@ void OglScreen::colorrefToRgb(GLfloat& r, GLfloat& g, GLfloat& b, COLORREF color
 
 void OglScreen::SetViewport(void)
 {
-	// viewport ¼³Á¤
+	// viewport ì„¤ì •
 	CRect rect;
 	GetClientRect(rect);
 	int range = __min(rect.Width(), rect.Height());
 	int diff = abs(rect.Width() - rect.Height());
-	if (rect.Width() >= rect.Height()) glViewport(diff / 2, 0, range, range); // °¡·Î°¡ ±ä °æ¿ì
-	else glViewport(0, diff / 2, range, range); // ¼¼·Î°¡ ±ä °æ¿ì
+	if (rect.Width() >= rect.Height()) glViewport(diff / 2, 0, range, range); // ê°€ë¡œê°€ ê¸´ ê²½ìš°
+	else glViewport(0, diff / 2, range, range); // ì„¸ë¡œê°€ ê¸´ ê²½ìš°
 
-	// Åõ¿µ Çà·Ä
+	// íˆ¬ì˜ í–‰ë ¬
 	GLdouble ranHalf = range / 2.;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -53,7 +53,7 @@ void OglScreen::SetViewport(void)
 
 void OglScreen::AdjustPixelFormat(void)
 {
-	// ±¸Á¶Ã¼ ÃÊ±âÈ­
+	// êµ¬ì¡°ì²´ ì´ˆê¸°í™”
 	PIXELFORMATDESCRIPTOR PFD = {
 sizeof(PIXELFORMATDESCRIPTOR), // size of PFD 
 1,                              // version number 
@@ -92,12 +92,16 @@ void OglScreen::InitOpenGL(void)
 {
 	StartRC();
 
-	// OpenGL ÄÚµå
+	// OpenGL ì½”ë“œ
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE); // Æ¯Á¤ ¸é(face)À» µµÅÂ½ÃÅ°±â(cull)¸¦ °¡´ÉÇÏ°Ô(enable)
-	glFrontFace(GL_CCW); // Á¤¸é(front face)ÀÇ ¹ı¼± º¤ÅÍ¸¦ ¹İ½Ã°è(CCW) ¹æÇâÀ¸·Î ¼³Á¤
-	glCullFace(GL_BACK); // µŞ¸é(back face)¸¦ µµÅÂ½ÃÅ°±â(cull)
-	glEnable(GL_NORMALIZE); // scale ¿¬»êÀ» ÇÒ ¶§ ¹ı¼± º¤ÅÍ ¹æÇâÀÌ ¹Ù²îÁö ¾Êµµ·Ï Á¤±ÔÈ­
+	glEnable(GL_CULL_FACE); // íŠ¹ì • ë©´(face)ì„ ë„íƒœì‹œí‚¤ê¸°(cull)ë¥¼ ê°€ëŠ¥í•˜ê²Œ(enable)
+	glFrontFace(GL_CCW); // ì •ë©´(front face)ì˜ ë²•ì„  ë²¡í„°ë¥¼ ë°˜ì‹œê³„(CCW) ë°©í–¥ìœ¼ë¡œ ì„¤ì •
+	glCullFace(GL_BACK); // ë’·ë©´(back face)ë¥¼ ë„íƒœì‹œí‚¤ê¸°(cull)
+	glEnable(GL_NORMALIZE); // scale ì—°ì‚°ì„ í•  ë•Œ ë²•ì„  ë²¡í„° ë°©í–¥ì´ ë°”ë€Œì§€ ì•Šë„ë¡ ì •ê·œí™”
+
+	// Alpha blending ì„¤ì •
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	StopRC();
 }
@@ -106,9 +110,9 @@ void OglScreen::InitRender(void)
 {
 	GLfloat r, g, b;
 
-	// ÃÊ±â ¼³Á¤ + ¹è°æ»ö ¼³Á¤
+	// ì´ˆê¸° ì„¤ì • + ë°°ê²½ìƒ‰ ì„¤ì •
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearDepth(1.0f); // ¹°Ã¼´Â Ä«¸Ş¶ó¿¡¼­ °¡Àå ¸Ö¸®(1.0f) ÀÖ´Ù°í ÃÊ±âÈ­(clear)
+	glClearDepth(1.0f); // ë¬¼ì²´ëŠ” ì¹´ë©”ë¼ì—ì„œ ê°€ì¥ ë©€ë¦¬(1.0f) ìˆë‹¤ê³  ì´ˆê¸°í™”(clear)
 	OglScreen::colorrefToRgb(r, g, b, m_nBackColor);
 	glClearColor(r, g, b, m_backAlpha);
 }
@@ -122,14 +126,14 @@ BOOL OglScreen::Create(int nId, CWnd* pParent)
 	CWnd* pWnd = pParent->GetDlgItem(nId);
 	pWnd->ShowWindow(SW_HIDE);
 	CRect rect;
-	pWnd->GetWindowRect(rect); // ½ºÅ©¸°(¹®¼­) ÁÂÇ¥°è¸¦ ±âÁØÀ¸·Î ÇöÀç pWndÀÇ »ç°¢Çü ¿µ¿ª ¾ò±â
-	pParent->ScreenToClient(rect); // ½ºÅ©¸° ÁÂÇ¥°è -> dialogÀÇ client ÁÂÇ¥°è·Î º¯È¯
-	return Create(NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, rect, pParent); // ½ºÅ©¸° »ı¼º
+	pWnd->GetWindowRect(rect); // ìŠ¤í¬ë¦°(ë¬¸ì„œ) ì¢Œí‘œê³„ë¥¼ ê¸°ì¤€ìœ¼ë¡œ í˜„ì¬ pWndì˜ ì‚¬ê°í˜• ì˜ì—­ ì–»ê¸°
+	pParent->ScreenToClient(rect); // ìŠ¤í¬ë¦° ì¢Œí‘œê³„ -> dialogì˜ client ì¢Œí‘œê³„ë¡œ ë³€í™˜
+	return Create(NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, rect, pParent); // ìŠ¤í¬ë¦° ìƒì„±
 }
 
 BOOL OglScreen::Create(LPCTSTR lpszText, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID)
 {
-	// TODO: ¿©±â¿¡ Æ¯¼öÈ­µÈ ÄÚµå¸¦ Ãß°¡ ¹×/¶Ç´Â ±âº» Å¬·¡½º¸¦ È£ÃâÇÕ´Ï´Ù.
+	// TODO: ì—¬ê¸°ì— íŠ¹ìˆ˜í™”ëœ ì½”ë“œë¥¼ ì¶”ê°€ ë°/ë˜ëŠ” ê¸°ë³¸ í´ë˜ìŠ¤ë¥¼ í˜¸ì¶œí•©ë‹ˆë‹¤.
 	BOOL bResult = CStatic::Create(lpszText, dwStyle, rect, pParentWnd, nID);
 	return bResult;
 }
@@ -146,9 +150,9 @@ int OglScreen::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CStatic::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	// TODO:  ¿©±â¿¡ Æ¯¼öÈ­µÈ ÀÛ¼º ÄÚµå¸¦ Ãß°¡ÇÕ´Ï´Ù.
-	//m_hDC = ::GetDC(m_hWnd); // m_hWnd: ÇöÀç windowÀÇ ÇÚµé
-	m_hDC = ::GetDC(GetSafeHwnd()); // ¾ÈÀüÇÑ window ÇÚµé ¾ò±â
+	// TODO:  ì—¬ê¸°ì— íŠ¹ìˆ˜í™”ëœ ì‘ì„± ì½”ë“œë¥¼ ì¶”ê°€í•©ë‹ˆë‹¤.
+	//m_hDC = ::GetDC(m_hWnd); // m_hWnd: í˜„ì¬ windowì˜ í•¸ë“¤
+	m_hDC = ::GetDC(GetSafeHwnd()); // ì•ˆì „í•œ window í•¸ë“¤ ì–»ê¸°
 	AdjustPixelFormat();
 	m_hRC = ::wglCreateContext(m_hDC);
 	InitOpenGL();
@@ -159,15 +163,15 @@ int OglScreen::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void OglScreen::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
-	// TODO: ¿©±â¿¡ ¸Ş½ÃÁö Ã³¸®±â ÄÚµå¸¦ Ãß°¡ÇÕ´Ï´Ù.
-	// ±×¸®±â ¸Ş½ÃÁö¿¡ ´ëÇØ¼­´Â CStatic::OnPaint()À»(¸¦) È£ÃâÇÏÁö ¸¶½Ê½Ã¿À.
+	// TODO: ì—¬ê¸°ì— ë©”ì‹œì§€ ì²˜ë¦¬ê¸° ì½”ë“œë¥¼ ì¶”ê°€í•©ë‹ˆë‹¤.
+	// ê·¸ë¦¬ê¸° ë©”ì‹œì§€ì— ëŒ€í•´ì„œëŠ” CStatic::OnPaint()ì„(ë¥¼) í˜¸ì¶œí•˜ì§€ ë§ˆì‹­ì‹œì˜¤.
 	StartRC();
 
-	// OpenGL ÄÚµå
+	// OpenGL ì½”ë“œ
 	InitRender();
 	RenderScene();
 
-	::SwapBuffers(m_hDC); // double buffer ¶§¹®¿¡ ÇÊ¿ä
+	::SwapBuffers(m_hDC); // double buffer ë•Œë¬¸ì— í•„ìš”
 	StopRC();
 }
 
@@ -175,16 +179,16 @@ void OglScreen::OnDestroy()
 {
 	CStatic::OnDestroy();
 
-	// TODO: ¿©±â¿¡ ¸Ş½ÃÁö Ã³¸®±â ÄÚµå¸¦ Ãß°¡ÇÕ´Ï´Ù.
+	// TODO: ì—¬ê¸°ì— ë©”ì‹œì§€ ì²˜ë¦¬ê¸° ì½”ë“œë¥¼ ì¶”ê°€í•©ë‹ˆë‹¤.
 	StopRC();
 	::wglDeleteContext(m_hRC);
 	::ReleaseDC(GetSafeHwnd(), m_hDC);
 }
 
-// OpenGLÀÌ ¹è°æ Ã³¸®ÇÏ±â ¶§¹®¿¡ ÇÊ¿ä¾ø´Â ¸Ş½ÃÁö ÇÚµé·¯
+// OpenGLì´ ë°°ê²½ ì²˜ë¦¬í•˜ê¸° ë•Œë¬¸ì— í•„ìš”ì—†ëŠ” ë©”ì‹œì§€ í•¸ë“¤ëŸ¬
 BOOL OglScreen::OnEraseBkgnd(CDC* pDC)
 {
-	// TODO: ¿©±â¿¡ ¸Ş½ÃÁö Ã³¸®±â ÄÚµå¸¦ Ãß°¡ ¹×/¶Ç´Â ±âº»°ªÀ» È£ÃâÇÕ´Ï´Ù.
+	// TODO: ì—¬ê¸°ì— ë©”ì‹œì§€ ì²˜ë¦¬ê¸° ì½”ë“œë¥¼ ì¶”ê°€ ë°/ë˜ëŠ” ê¸°ë³¸ê°’ì„ í˜¸ì¶œí•©ë‹ˆë‹¤.
 	return TRUE;
 	//return CStatic::OnEraseBkgnd(pDC);
 }

@@ -22,8 +22,8 @@ public:
 
 protected:
 	OglLightMtl m_lightMtl;		// 조명 및 재질 정보
-	OglSphere	m_sphere;		// 구체 객체
-	OglCube		m_cube;			// 정육면체 객체
+	OglSphere m_sphere;			// 구체 객체
+	OglCube	m_cube;				// 정육면체 객체
 	OglCylinder m_cylinder;		// 원기둥 객체
 
 	CArray<OglTransform, const OglTransform&> m_arGameObj; // 게임 객체 변환 정보 배열
