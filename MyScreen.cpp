@@ -1,16 +1,33 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "MyScreen.h"
 #include "OglTransform.h"
 
 MyScreen::MyScreen(void)
 {
-	SetBackColor(RGB(0, 0, 255));
+	SetBackColor(RGB(255, 255, 255));
+}
+
+void MyScreen::AddGameObject(const OglTransform& ot)
+{
+	m_arGameObj.Add(ot);	// ê²Œì„ ê°ì²´ ë³€í™˜ ì •ë³´ ë°°ì—´ì— ì¶”ê°€
+	Invalidate(FALSE);		// í™”ë©´ ê°±ì‹  ìš”ì²­
+}
+
+void MyScreen::ClearGameObjects(void)
+{
+	m_arGameObj.RemoveAll();	// ê²Œì„ ê°ì²´ ë³€í™˜ ì •ë³´ ë°°ì—´ ë¹„ìš°ê¸°
+	Invalidate(FALSE);			// í™”ë©´ ê°±ì‹  ìš”ì²­
+}
+
+int MyScreen::GetGameObjectCount(void) const
+{
+	return (int)m_arGameObj.GetCount();	// ê²Œì„ ê°ì²´ ë³€í™˜ ì •ë³´ ë°°ì—´ì˜ ì›ì†Œ ê°œìˆ˜ ë°˜í™˜
 }
 
 void MyScreen::SampleMultiGameObj(void)
 {
-	// CArray: MFC°¡ Á¦°øÇÏ´Â °¡º¯ ¹è¿­; Å©±â Á¶Á¤ °¡´É(Å©±â Á¶Á¤ÇÒ ¶§´Â ¼Óµµ°¡ ´À·ÁÁü)
-	CArray<OglTransform, OglTransform&> ar; // <,> ÀÇ¹Ì: template; < data type, argument(access) type>
+	// CArray: MFCê°€ ì œê³µí•˜ëŠ” ê°€ë³€ ë°°ì—´; í¬ê¸° ì¡°ì • ê°€ëŠ¥(í¬ê¸° ì¡°ì •í•  ë•ŒëŠ” ì†ë„ê°€ ëŠë ¤ì§)
+	CArray<OglTransform, OglTransform&> ar; // <,> ì˜ë¯¸: template; < data type, argument(access) type>
 	OglTransform ot;
 	// #0 element
 	ot.m_nType = GameObjType::SPHERE;
@@ -53,10 +70,10 @@ void MyScreen::SampleMultiGameObj(void)
 	ot.m_rotate = Vector3(45.f, 0.f, 0.f);
 	ar.Add(ot);
 
-	// ¹è¿­ÀÇ ¸ğµç ¿ø¼Ò¸¦ ·»´õ¸µ
+	// ë°°ì—´ì˜ ëª¨ë“  ì›ì†Œë¥¼ ë Œë”ë§
 	for (int i = 0; i < ar.GetCount(); i++)
 	{
-		OglTransform elt = ar[i]; // ÇöÀç ·»´õ¸µÇÒ ¿ø¼Ò
+		OglTransform elt = ar[i]; // í˜„ì¬ ë Œë”ë§í•  ì›ì†Œ
 		switch (elt.m_nType)
 		{
 		case GameObjType::SPHERE:
@@ -89,14 +106,40 @@ void MyScreen::InitOpenGL(void)
 void MyScreen::InitRender(void)
 {
 	OglScreen::InitRender();
-
 }
 
 void MyScreen::RenderScene(void)
 {
 	OglScreen::RenderScene();
 
-	SampleMultiGameObj();
-	//m_sphere.SetRgba(RGB(0, 255, 0));
-	//m_sphere.Draw(100.);
+	//SampleMultiGameObj();
+	
+	RenderAllGameObjects(); // ë°°ì—´ì˜ ëª¨ë“  ê²Œì„ ê°ì²´ë¥¼ ë Œë”ë§
+}
+
+void MyScreen::RenderAllGameObjects(void)
+{
+	// ë°°ì—´ì˜ ëª¨ë“  ê²Œì„ ê°ì²´ë¥¼ ë Œë”ë§
+	for (int i = 0; i < m_arGameObj.GetCount(); i++)
+	{
+		const OglTransform& elt = m_arGameObj[i];
+
+		switch (elt.m_nType)
+		{
+		case GameObjType::SPHERE:
+			m_sphere.Draw(elt);
+			break;
+
+		case GameObjType::CUBE:
+			m_cube.Draw(elt);
+			break;
+
+		case GameObjType::CYLINDER:
+			m_cylinder.Draw(elt);
+			break;
+
+		default:
+			break;
+		}
+	}
 }

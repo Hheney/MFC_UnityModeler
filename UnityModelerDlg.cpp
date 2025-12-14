@@ -94,12 +94,15 @@ void CUnityModelerDlg::SetTabCtrl(void)
 	// 탭별로 dialog 생성
 	CRect rect;
 	m_tabCtrl.GetClientRect(&rect); // tab control의 사각형 영역 얻기
+	
 	// 0번 탭
 	m_pDlgGameObj = new CDlgGameObj;
 	m_pDlgGameObj->Create(IDD_GAMEOBJ, &m_tabCtrl); // m_pDlgGameObj의 부모를 m_tabCtrl로 선택
 	m_pDlgGameObj->MoveWindow(0, 20, rect.Width(), rect.Height());
 	m_pDlgGameObj->ShowWindow(SW_SHOW);
 	m_pDlgGameObj->SetLbGameObj(&m_lbGameObj); // m_lbGameObj인 CListBox의 포인터를 CDlgGameObj에 전달
+	m_pDlgGameObj->SetScreen(&m_screen); // m_screen인 MyScreen의 포인터를 CDlgGameObj에 전달
+	
 	// 1번 탭
 	m_pDlgLight = new CDlgLight;
 	m_pDlgLight->Create(IDD_LIGHT, &m_tabCtrl); // m_pDlgGameObj의 부모를 m_tabCtrl로 선택
