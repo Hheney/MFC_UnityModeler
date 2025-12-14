@@ -168,8 +168,6 @@ void CDlgGameObj::OnBnClickedButton1()
 		ot.m_scale = Vector3((GLfloat)m_dSx, (GLfloat)m_dSy, (GLfloat)m_dSz);
 
 		m_pScreen->AddGameObject(ot);
-
-		TRACE(_T("[Add] m_nObjType=%d\n"), m_nSelectedObjTypeIndex);
 	}
 }
 
