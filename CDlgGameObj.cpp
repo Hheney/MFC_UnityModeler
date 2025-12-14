@@ -112,6 +112,11 @@ void CDlgGameObj::ApplyPresetByTypeIndex(int nIndex)
 	case 2: // Cylinder
 		m_dSx = 1.0; m_dSy = 1.0; m_dSz = 1.0;
 		m_btnColor.SetColor(RGB(0, 128, 255));	// 파랑
+
+		// 원기둥은 기본 축 방향 때문에 화면에서 안보일 수 있어 기본 회전값 추가(BackFace Culling 영향)
+		m_dRx = 45.0;
+		m_dRy = 0.0;
+		m_dRz = 0.0;
 		break;
 
 	default:
