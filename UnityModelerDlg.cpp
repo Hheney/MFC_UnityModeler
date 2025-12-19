@@ -108,6 +108,8 @@ void CUnityModelerDlg::SetTabCtrl(void)
 	m_pDlgLight->Create(IDD_LIGHT, &m_tabCtrl); // m_pDlgGameObj의 부모를 m_tabCtrl로 선택
 	m_pDlgLight->MoveWindow(0, 20, rect.Width(), rect.Height());
 	m_pDlgLight->ShowWindow(SW_HIDE);
+
+	m_pDlgLight->SetScreen(&m_screen);
 }
 
 BOOL CUnityModelerDlg::OnInitDialog()

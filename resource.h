@@ -28,14 +28,24 @@
 #define IDC_OBJ_COLORBTN                1014
 #define IDC_EDIT_OBJ_ALPHA              1015
 #define IDC_LIST_OBJ_TYPE               1016
+#define IDC_BACK_COLORBTN               1018
+#define IDC_LIGHT_AMBIENT_BTN           1019
+#define IDC_LIGHT_DIFFUSE_BTN           1020
+#define IDC_LIGHT_SPECULAR_BTN          1021
+#define IDC_LIGHT_POS_X                 1022
+#define IDC_LIGHT_POS_Y                 1023
+#define IDC_BACK_ALPHA                  1024
+#define IDC_LIGHT_POS_Z                 1025
+#define IDC_MTL_SHINE                   1026
+#define IDC_BTN_APPLY_LIGHT             1027
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_RESOURCE_VALUE        134
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1018
+#define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -1,92 +1,72 @@
 ﻿#include "pch.h"
 #include "MyScreen.h"
-#include "OglTransform.h"
+#include "OglScreen.h"
+#include <cmath>
 
 MyScreen::MyScreen(void)
 {
 	SetBackColor(RGB(128, 128, 128));
+	SetBackAlpha(1.0f);
 }
 
 void MyScreen::AddGameObject(const OglTransform& ot)
 {
-	m_arGameObj.Add(ot);	// 게임 객체 변환 정보 배열에 추가
-	Invalidate(FALSE);		// 화면 갱신 요청
+	m_arGameObj.Add(ot);
+	Invalidate(FALSE);
 }
 
 void MyScreen::ClearGameObjects(void)
 {
-	m_arGameObj.RemoveAll();	// 게임 객체 변환 정보 배열 비우기
-	Invalidate(FALSE);			// 화면 갱신 요청
+	m_arGameObj.RemoveAll();
+	Invalidate(FALSE);
 }
 
 int MyScreen::GetGameObjectCount(void) const
 {
-	return (int)m_arGameObj.GetCount();	// 게임 객체 변환 정보 배열의 원소 개수 반환
+	return (int)m_arGameObj.GetCount();
 }
 
-void MyScreen::SampleMultiGameObj(void)
+bool MyScreen::LoadObjMesh(const CString& sObjPath)
 {
-	// CArray: MFC가 제공하는 가변 배열; 크기 조정 가능(크기 조정할 때는 속도가 느려짐)
-	CArray<OglTransform, OglTransform&> ar; // <,> 의미: template; < data type, argument(access) type>
-	OglTransform ot;
-	// #0 element
-	ot.m_nType = GameObjType::SPHERE;
-	ot.m_nColor = RGB(255, 0, 0);
-	ot.m_alpha = 1.f;
-	ot.m_translate = Vector3(100.f, 100.f, 0.f);
-	ot.m_scale = Vector3(0.5f, 1.f, 1.f);
-	ar.Add(ot);
-	// #1 element
-	ot.m_nType = GameObjType::SPHERE;
-	ot.m_nColor = RGB(0, 255, 0);
-	ot.m_alpha = 1.f;
-	ot.m_translate = Vector3(-100.f, 100.f, 0.f);
-	ot.m_scale = Vector3(1.f, 1.f, 1.f);
-	ar.Add(ot);
-	// #2 element
-	ot.m_nType = GameObjType::CUBE;
-	ot.m_nColor = RGB(0, 0, 255);
-	ot.m_alpha = 1.f;
-	ot.m_translate = Vector3(-100.f, -100.f, 0.f);
-	ot.m_scale = Vector3(1.f, 1.f, 1.f);
-	ot.m_rotate = Vector3(45.f, 45.f, 0.f);
-	ar.Add(ot);
+	m_objFile.LoadObj(sObjPath);
+	m_bObjLoaded = (m_objFile.GetVtx3Ptr() != nullptr && m_objFile.GetVtx3Size() > 0);
+	Invalidate(FALSE);
+	return m_bObjLoaded;
+}
 
-	// #2 element
-	ot.m_nType = GameObjType::CUBE;
-	ot.m_nColor = RGB(0, 0, 0);
-	ot.m_alpha = -1.f;
-	ot.m_translate = Vector3(100.f, -100.f, 0.f);
-	ot.m_scale = Vector3(2.f, 2.f, 2.f);
-	ot.m_rotate = Vector3(45.f, 45.f, 0.f);
-	ar.Add(ot);
-
-	// #3 element
-	ot.m_nType = GameObjType::CYLINDER;
-	ot.m_nColor = RGB(255, 0, 255);
-	ot.m_alpha = 1.f;
-	ot.m_translate = Vector3(0.f, 0.f, 0.f);
-	ot.m_scale = Vector3(1.f, 1.f, 1.f);
-	ot.m_rotate = Vector3(45.f, 0.f, 0.f);
-	ar.Add(ot);
-
-	// 배열의 모든 원소를 렌더링
-	for (int i = 0; i < ar.GetCount(); i++)
+void MyScreen::ApplyLightMaterial(
+	const GLfloat ambient[4],
+	const GLfloat diffuse[4],
+	const GLfloat specular[4],
+	const GLfloat lightPos[4],
+	const GLfloat emit[4],
+	GLfloat shininess)
+{
+	for (int i = 0; i < 4; i++)
 	{
-		OglTransform elt = ar[i]; // 현재 렌더링할 원소
-		switch (elt.m_nType)
-		{
-		case GameObjType::SPHERE:
-			m_sphere.Draw(elt);
-			break;
-		case GameObjType::CUBE:
-			m_cube.Draw(elt);
-			break;
-		case GameObjType::CYLINDER:
-			m_cylinder.Draw(elt);
-			break;
-		}
+		m_lightMtl.m_lightAmbient[i] = ambient[i];
+		m_lightMtl.m_lightDiffuse[i] = diffuse[i];
+		m_lightMtl.m_lightSpecular[i] = specular[i];
+		m_lightMtl.m_lightPos[i] = lightPos[i];
+		m_lightMtl.m_mtlEmit[i] = emit[i];
 	}
+	m_lightMtl.m_mtlShine = shininess;
+
+	StartRC();
+	m_lightMtl.SetLightParam(false);
+	StopRC();
+
+	Invalidate(FALSE);
+}
+
+void MyScreen::ApplyBackground(COLORREF col, GLfloat alpha)
+{
+	if (alpha < 0.0f) alpha = 0.0f;
+	if (alpha > 1.0f) alpha = 1.0f;
+
+	SetBackColor(col);
+	SetBackAlpha(alpha);
+	Invalidate(FALSE);
 }
 
 void MyScreen::InitOpenGL(void)
@@ -95,9 +75,16 @@ void MyScreen::InitOpenGL(void)
 
 	StartRC();
 
-	m_lightMtl.SetLightParam();
+	// LightMtl이 RC/DC를 쓸 수 있도록 전달
+	m_lightMtl.SetDCRC(m_hDC, m_hRC);
+	m_lightMtl.SetLightParam(false);
+
+	// 기본 프리미티브 준비
 	m_sphere.Create();
 	m_cylinder.Create();
+	// cube는 Create 없이 Draw 가능하지만, 안정적으로 맞추려면 Create가 있어도 무방
+	// (현재 OglCube에 Create는 없음)
+
 	SetViewport();
 
 	StopRC();
@@ -111,15 +98,11 @@ void MyScreen::InitRender(void)
 void MyScreen::RenderScene(void)
 {
 	OglScreen::RenderScene();
-
-	//SampleMultiGameObj();
-	
-	RenderAllGameObjects(); // 배열의 모든 게임 객체를 렌더링
+	RenderAllGameObjects();
 }
 
 void MyScreen::RenderAllGameObjects(void)
 {
-	// 배열의 모든 게임 객체를 렌더링
 	for (int i = 0; i < m_arGameObj.GetCount(); i++)
 	{
 		const OglTransform& elt = m_arGameObj[i];
@@ -138,8 +121,121 @@ void MyScreen::RenderAllGameObjects(void)
 			m_cylinder.Draw(elt);
 			break;
 
+		case GameObjType::QUAD:
+			DrawQuad(elt);
+			break;
+
+		case GameObjType::TRI:
+			DrawTri(elt);
+			break;
+
+		case GameObjType::OBJ:
+			DrawObj(elt);
+			break;
+
 		default:
 			break;
 		}
 	}
+}
+
+void MyScreen::DrawQuad(const OglTransform& ot) const
+{
+	GLfloat r, g, b;
+	OglScreen::colorrefToRgb(r, g, b, ot.m_nColor);
+
+	glPushMatrix();
+	glLoadIdentity();
+	ot.Transform();
+
+	glColor4f(r, g, b, ot.m_alpha);
+
+	// XY 평면에 사각형 1장 (OpenGL은 내부적으로 QUAD를 2 TRI로 처리)
+	glBegin(GL_QUADS);
+	glVertex3f(-50.f, -50.f, 0.f);
+	glVertex3f(50.f, -50.f, 0.f);
+	glVertex3f(50.f, 50.f, 0.f);
+	glVertex3f(-50.f, 50.f, 0.f);
+	glEnd();
+
+	glPopMatrix();
+}
+
+void MyScreen::DrawTri(const OglTransform& ot) const
+{
+	GLfloat r, g, b;
+	OglScreen::colorrefToRgb(r, g, b, ot.m_nColor);
+
+	glPushMatrix();
+	glLoadIdentity();
+	ot.Transform();
+
+	glColor4f(r, g, b, ot.m_alpha);
+
+	glBegin(GL_TRIANGLES);
+	glVertex3f(0.f, 60.f, 0.f);
+	glVertex3f(-60.f, -60.f, 0.f);
+	glVertex3f(60.f, -60.f, 0.f);
+	glEnd();
+
+	glPopMatrix();
+}
+
+void MyScreen::ComputeFaceNormal(
+	const Vector3& a, const Vector3& b, const Vector3& c,
+	GLfloat& nx, GLfloat& ny, GLfloat& nz)
+{
+	// (b-a) x (c-a)
+	GLfloat ux = b.x - a.x;
+	GLfloat uy = b.y - a.y;
+	GLfloat uz = b.z - a.z;
+
+	GLfloat vx = c.x - a.x;
+	GLfloat vy = c.y - a.y;
+	GLfloat vz = c.z - a.z;
+
+	nx = uy * vz - uz * vy;
+	ny = uz * vx - ux * vz;
+	nz = ux * vy - uy * vx;
+
+	GLfloat len = std::sqrt(nx * nx + ny * ny + nz * nz);
+	if (len > 0.00001f)
+	{
+		nx /= len; ny /= len; nz /= len;
+	}
+}
+
+void MyScreen::DrawObj(const OglTransform& ot) const
+{
+	if (!m_bObjLoaded) return;
+
+	GLfloat r, g, b;
+	OglScreen::colorrefToRgb(r, g, b, ot.m_nColor);
+
+	const PVertex3 ptr = m_objFile.GetVtx3Ptr();
+	const int nFace = m_objFile.GetVtx3Size();
+
+	glPushMatrix();
+	glLoadIdentity();
+	ot.Transform();
+
+	glColor4f(r, g, b, ot.m_alpha);
+
+	// 매우 단순 렌더: face 단위로 TRIANGLES
+	glBegin(GL_TRIANGLES);
+	for (int i = 0; i < nFace; i++)
+	{
+		const Vertex3& f = ptr[i];
+
+		GLfloat nx, ny, nz;
+		ComputeFaceNormal(f.pt1, f.pt2, f.pt3, nx, ny, nz);
+		glNormal3f(nx, ny, nz);
+
+		glVertex3f(f.pt1.x, f.pt1.y, f.pt1.z);
+		glVertex3f(f.pt2.x, f.pt2.y, f.pt2.z);
+		glVertex3f(f.pt3.x, f.pt3.y, f.pt3.z);
+	}
+	glEnd();
+
+	glPopMatrix();
 }
